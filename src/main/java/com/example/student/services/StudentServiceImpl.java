@@ -1,12 +1,17 @@
 package com.example.student.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.example.student.dao.StudentDao;
 import com.example.student.entities.Student;
+import com.example.student.exception.StudentExistException;
+import com.example.student.exception.StudentNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class StudentServiceImpl implements StudentService{
@@ -28,7 +33,7 @@ public class StudentServiceImpl implements StudentService{
     }
 
     @Override
-    public Student getStudent(int id) {
+    public Student getStudent(int id) throws StudentNotFoundException{
         // Student s = null;
         // for(Student student: list) {
         //     if(student.getId() == id) {
@@ -36,20 +41,27 @@ public class StudentServiceImpl implements StudentService{
         //         break;
         //     }
         // }
+        
+        Student student = studentDao.getById(id);
 
-        return studentDao.getById(id);
-    }
-
-    @Override
-    public Student addStudent(Student student) {
-        // list.add(student);
-
-        studentDao.save(student);
         return student;
     }
 
     @Override
-    public Student updateStudent(Student student) {
+    public Student addStudent(Student student) throws StudentExistException{
+        // list.add(student);
+
+        // Student existingStudent = studentDao.findStudentByName(student.getName());
+
+        // if(existingStudent != null) {
+        //     throw new StudentExistException("Student already exists in repository");
+        // }
+
+        return studentDao.save(student);
+    }
+
+    @Override
+    public Student updateStudent(int id,Student student) throws StudentNotFoundException{
         // list.forEach(s -> {
         //     if(s.getId() == student.getId) {
         //         s.setName(student.getName());
@@ -57,16 +69,26 @@ public class StudentServiceImpl implements StudentService{
         //     }
         // });
 
-        studentDao.save(student);
-        return student;
+        Optional<Student> optionalStudent = studentDao.findById(id);
+
+        if(!optionalStudent.isPresent()) {
+            throw new StudentNotFoundException("Student not found");
+        }
+
+        student.setId(id);
+        return studentDao.save(student);
     }
 
     @Override
     public void deleteStudent(int id) {
         // list = this.list.stream().filter(s -> s.getId() != parseInt).collect(Collectors.toList());
-        
-        Student entity =  studentDao.getById(id);
-        studentDao.delete(entity);
+        Optional<Student> optionalStudent = studentDao.findById(id);
+
+        if(!optionalStudent.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Student not found");
+        }
+
+        studentDao.deleteById(id);
     }
     
 }

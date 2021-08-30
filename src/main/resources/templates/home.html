@@ -38,7 +38,7 @@
         <div class="studentcolumn col-lg-3 col-md-6" th:each="student : ${listStudents}">
           <div class="card">
             <div class="card-body">
-              <p class="card-text">Student Id : <span th:text = "${student.id}"></span></p>
+              <p class="card-text">Student ID : <span th:text = "${student.id}"></span></p>
               <p class="card-text">Student Name : <span th:text = "${student.name}"></span></p>
               <p class="card-text">Student Stream: <span th:text = "${student.stream}"></span></p>
               <a th:href="@{/showForm/{id}(id=${student.id})}" class="update btn btn-outline-primary">Update</a>
